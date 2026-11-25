@@ -1,0 +1,6 @@
+# Netlify builds only the Next.js frontend. Set API_URL (the Render backend URL)
+# in the Netlify UI / env vars; Next.js proxies /api/* to it.
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
