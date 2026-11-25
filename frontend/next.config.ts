@@ -4,7 +4,8 @@ import type { NextConfig } from "next";
 const API_URL = process.env.API_URL ?? "http://localhost:8000";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Docker needs a self-contained server; on Netlify the Next.js runtime handles packaging.
+  output: process.env.NETLIFY ? undefined : "standalone",
   poweredByHeader: false,
   devIndicators: false,
   turbopack: {
