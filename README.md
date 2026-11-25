@@ -10,6 +10,20 @@ A personal operating system: tasks, projects, calendar, finances, goals, habits,
 | **AI** | Anthropic Claude (official `anthropic` SDK, streaming over SSE) — optional |
 | **Dev env** | Docker Compose |
 
+## Live deployment
+
+| Part | Where | URL |
+|---|---|---|
+| Web app (Next.js) | Netlify | https://nexus-os-app-4qjq.netlify.app |
+| API (FastAPI, Docker) | Render, Frankfurt | https://nexus-os-api-vp7l.onrender.com/api/docs |
+| PostgreSQL 16 | Render (free plan) | internal only |
+
+The Netlify site proxies `/api/*` to the Render API (`API_URL` env var on Netlify), so the browser talks to a single origin and session cookies stay first-party.
+
+**Free-tier caveats:** the Render API sleeps after 15 min without traffic (first request then takes ~1 min); the free Render database **expires 30 days after creation** (upgrade it, or point `DATABASE_URL` at another Postgres such as Neon). Netlify's free tier injects a comment and a script into the HTML, which makes React log a recoverable hydration warning (#418) in the browser console; the app is unaffected.
+
+**Redeploying:** the Render API auto-deploys on every push to `main`. The Netlify site was deployed by upload; connect the GitHub repo in Netlify (*Project configuration → Build & deploy → Link repository*) to get automatic deploys too.
+
 ---
 
 ## Features
