@@ -10,7 +10,7 @@ type Size = "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-accent text-white shadow-[0_1px_0_0_rgba(255,255,255,0.18)_inset,0_8px_20px_-8px_var(--accent)] hover:brightness-110 active:brightness-95",
+    "btn-sweep bg-gradient-to-b from-[color-mix(in_oklab,var(--accent)_88%,white)] to-accent text-white shadow-[0_1px_0_0_rgba(255,255,255,0.18)_inset,0_8px_20px_-8px_var(--accent)] hover:brightness-110 active:brightness-95",
   secondary: "bg-surface-2 text-fg border border-line hover:bg-surface-3 hover:border-line-strong",
   ghost: "text-fg-muted hover:text-fg hover:bg-surface-2",
   danger: "bg-danger/10 text-danger border border-danger/20 hover:bg-danger/15",

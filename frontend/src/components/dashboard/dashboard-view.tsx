@@ -3,13 +3,16 @@
 import { format, isSameDay, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import {
-  Activity as ActivityIcon, AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, CalendarDays, CalendarPlus,
+  Activity as ActivityIcon, AlertCircle, ArrowDownLeft, ArrowRight, ArrowUpRight, CalendarDays,
   CheckCircle2, CheckSquare, Flame, ListTodo, Plus, Target, TrendingDown, TrendingUp, Wallet, Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { axisProps } from "@/components/charts/chart-kit";
+import { CountUp } from "@/components/fx/fx";
+
+import { DashboardHero } from "./hero";
 import { useQuickActions } from "@/components/layout/quick-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -26,48 +29,30 @@ const rise = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transiti
 export function DashboardView() {
   const { data, isLoading } = useDashboard();
   const me = useMe();
-  const qa = useQuickActions();
   const currency = me.data?.preferences.currency ?? "USD";
 
   if (isLoading || !data) return <DashboardSkeleton />;
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5">
-      <motion.div variants={rise} className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[13px] font-medium text-fg-subtle">{format(parseDay(data.date), "EEEE, MMMM d")}</p>
-          <h1 className="mt-1 text-[26px] font-semibold tracking-[-0.025em] text-fg sm:text-3xl">
-            {data.greeting}, <span className="bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">{data.name}</span>
-          </h1>
-          <p className="mt-1 text-sm text-fg-subtle">{summaryLine(data)}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={() => qa.open({ kind: "event" })}>
-            <CalendarPlus /> Event
-          </Button>
-          <Button size="sm" onClick={() => qa.open({ kind: "transaction", type: "expense" })}>
-            <ArrowUpRight /> Expense
-          </Button>
-          <Button size="sm" variant="primary" onClick={() => qa.open({ kind: "task" })}>
-            <Plus /> New task
-          </Button>
-        </div>
+      <motion.div variants={rise}>
+        <DashboardHero data={data} summary={summaryLine(data)} />
       </motion.div>
 
       {/* KPI row */}
       <motion.div variants={rise} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi icon={<CheckCircle2 />} label="Completed today" value={data.productivity.completed_today} sub={`${data.productivity.due_today_open} still due today`} />
+        <Kpi icon={<CheckCircle2 />} label="Completed today" value={<CountUp value={data.productivity.completed_today} />} sub={`${data.productivity.due_today_open} still due today`} />
         <Kpi
           icon={<ListTodo />}
           label="Open tasks"
-          value={data.productivity.open_total}
+          value={<CountUp value={data.productivity.open_total} />}
           sub={data.productivity.overdue ? <span className="text-danger">{data.productivity.overdue} overdue</span> : `${data.productivity.in_progress} in progress`}
         />
         <Kpi icon={<Flame />} label="Habits today" value={`${data.habits.done}/${data.habits.active}`} sub={data.habits.active ? `${Math.round((data.habits.done / data.habits.active) * 100)}% checked in` : "No habits yet"} />
         <Kpi
           icon={<Wallet />}
           label="Net this month"
-          value={money(data.finance.net, currency, { compact: Math.abs(data.finance.net) >= 100000 })}
+          value={<CountUp value={data.finance.net} format={(n) => money(n, currency, { compact: Math.abs(data.finance.net) >= 100000 })} />}
           sub={`${money(data.finance.income, currency, { compact: true })} in · ${money(data.finance.expense, currency, { compact: true })} out`}
           valueClass={data.finance.net < 0 ? "text-danger" : undefined}
         />
@@ -119,7 +104,7 @@ function Kpi({ icon, label, value, sub, valueClass }: { icon: React.ReactNode; l
     <Card className="group relative overflow-hidden p-4 transition-colors hover:border-line-strong">
       <div className="flex items-center justify-between">
         <p className="text-xs font-medium text-fg-subtle">{label}</p>
-        <span className="text-fg-faint transition-colors group-hover:text-accent-2 [&_svg]:size-4">{icon}</span>
+        <span className="grid size-8 place-items-center rounded-xl bg-gradient-to-br from-accent/20 to-transparent text-accent-2 ring-1 ring-accent/20 transition-all group-hover:scale-110 group-hover:shadow-[0_0_20px_-4px_var(--accent)] [&_svg]:size-4">{icon}</span>
       </div>
       <p className={cn("tabular mt-2 text-[26px] leading-none font-semibold tracking-tight text-fg", valueClass)}>{value}</p>
       {sub ? <p className="mt-2 truncate text-xs text-fg-subtle">{sub}</p> : null}
@@ -138,7 +123,7 @@ function ScoreCard({ data }: { data: Dashboard }) {
       <div className="flex items-center gap-6 px-5 pb-5">
         <ProgressRing value={score} size={128} stroke={11}>
           <div className="text-center">
-            <p className="tabular text-[34px] leading-none font-semibold tracking-tight text-fg">{score ?? "—"}</p>
+            <p className="tabular text-[34px] leading-none font-semibold tracking-tight text-fg">{score == null ? "—" : <CountUp value={score} />}</p>
             <p className="mt-1 text-[10.5px] font-medium tracking-wide text-fg-subtle uppercase">of 100</p>
           </div>
         </ProgressRing>
@@ -339,7 +324,7 @@ function FinanceCard({ data, currency }: { data: Dashboard; currency: string }) 
       <div className="flex-1 space-y-4 px-5 pb-5">
         <div>
           <p className="text-xs text-fg-subtle">Balance</p>
-          <p className="tabular text-2xl font-semibold tracking-tight text-fg">{money(f.balance, currency)}</p>
+          <p className="tabular text-2xl font-semibold tracking-tight text-fg"><CountUp value={f.balance} format={(n) => money(n, currency)} /></p>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-lg border border-line bg-bg-subtle p-2.5">

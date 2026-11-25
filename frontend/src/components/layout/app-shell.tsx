@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { toast } from "sonner";
 
 import { LogoMark } from "@/components/brand/logo";
+import { Aurora, SpotlightTracker } from "@/components/fx/fx";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/misc";
 import { api } from "@/lib/api";
@@ -117,6 +118,8 @@ function Shell({ user, children }: { user: User; children: ReactNode }) {
 
   return (
     <div className="canvas-glow min-h-dvh">
+      <Aurora />
+      <SpotlightTracker />
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-30 hidden border-r border-line bg-bg-subtle/80 backdrop-blur-xl transition-[width] duration-300 ease-out lg:block",
@@ -143,7 +146,7 @@ function Shell({ user, children }: { user: User; children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("transition-[padding] duration-300 ease-out", collapsed ? "lg:pl-[64px]" : "lg:pl-[244px]")}>
+      <main className={cn("relative z-[2] transition-[padding] duration-300 ease-out", collapsed ? "lg:pl-[64px]" : "lg:pl-[244px]")}>
         <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-10 lg:py-9">{children}</div>
       </main>
 

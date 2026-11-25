@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { celebrate, celebrateAtCursor } from "@/components/fx/confetti";
+
 import { api, ApiError } from "./api";
 import type {
   Activity, Analytics, AssistantStatus, Budget, CalendarEvent, Dashboard, FinanceSummary, Goal, Habit, Insight,
@@ -112,6 +114,7 @@ export function useUpdateTask(opts: { silent?: boolean } = {}) {
       toast.error(err instanceof ApiError ? err.message : "Could not update task");
     },
     onSuccess: (task, vars) => {
+      if (vars.status === "done") celebrateAtCursor(55);
       if (!opts.silent && vars.status === "done") toast.success(`Completed “${task.title}”`);
     },
     onSettled: () => {
@@ -198,6 +201,7 @@ export const useSaveGoal = () =>
     {
       invalidate: [["goals"]],
       success: (g, v) => (v.id ? (v.status === "completed" ? `Goal achieved 🎉` : "Goal updated") : "Goal created"),
+      onSuccess: (g) => g.status === "completed" && celebrate(undefined, 160),
     },
   );
 
@@ -212,7 +216,7 @@ export const useUpdateMilestone = () =>
   useApiMutation(
     ({ goalId, id, ...body }: { goalId: number; id: number; done?: boolean; title?: string }) =>
       api<Milestone>(`/goals/${goalId}/milestones/${id}`, { method: "PATCH", body }),
-    { invalidate: [["goals"]] },
+    { invalidate: [["goals"]], onSuccess: (m) => m.done && celebrateAtCursor(40) },
   );
 
 export const useDeleteMilestone = () =>
@@ -258,6 +262,9 @@ export function useCheckIn() {
     onError: (err, _v, ctx) => {
       ctx?.snaps.forEach(([k, d]) => qc.setQueryData(k, d));
       toast.error(err instanceof ApiError ? err.message : "Could not save check-in");
+    },
+    onSuccess: (_h, vars) => {
+      if (vars.done) celebrateAtCursor(35);
     },
     onSettled: () => {
       for (const key of [["habits"], ...DERIVED]) qc.invalidateQueries({ queryKey: key });

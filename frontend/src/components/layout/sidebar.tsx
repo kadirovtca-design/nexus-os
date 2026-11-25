@@ -145,9 +145,11 @@ function NavLink({ item, pathname, collapsed: c, mobile, onNavigate }: NavProps 
       {active ? (
         <motion.span
           layoutId={mobile ? "nav-active-m" : "nav-active"}
-          className="absolute inset-0 rounded-lg border border-line-strong bg-surface-2"
+          className="absolute inset-0 rounded-lg border border-line-strong bg-gradient-to-r from-accent/15 to-surface-2 shadow-[0_0_24px_-10px_var(--accent)]"
           transition={{ type: "spring", bounce: 0.18, duration: 0.45 }}
-        />
+        >
+          <span className="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-full bg-gradient-to-b from-accent to-accent-2 shadow-[0_0_10px_var(--accent)]" />
+        </motion.span>
       ) : null}
       <item.icon className={cn("relative size-[17px] shrink-0", active && "text-accent-2")} strokeWidth={active ? 2.2 : 1.9} />
       {!c ? <span className="relative truncate">{item.label}</span> : null}

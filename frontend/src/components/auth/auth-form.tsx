@@ -55,7 +55,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   const isLogin = mode === "login";
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="border-flow rounded-3xl"><div className="rounded-3xl border border-line bg-surface/70 p-7 shadow-pop backdrop-blur-xl sm:p-8">
       <h2 className="text-2xl font-semibold tracking-tight text-fg">{isLogin ? "Welcome back" : "Create your workspace"}</h2>
       <p className="mt-1.5 text-sm text-fg-subtle">
         {isLogin ? "Sign in to continue to NEXUS OS." : "It takes less than a minute. No credit card."}
@@ -118,6 +118,6 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           {isLogin ? "Create an account" : "Sign in"}
         </Link>
       </p>
-    </motion.div>
+    </div></motion.div>
   );
 }
